@@ -1,0 +1,8 @@
+.venv/
+.run/
+__pycache__/
+*.db
+*.db-shm
+*.db-wal
+.embody.json
+mirror/

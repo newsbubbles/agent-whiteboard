@@ -1,0 +1,19 @@
+[project]
+name = "whiteboard-world"
+version = "0.1.0"
+description = "The Whiteboard: a shared room on the embody engine where agents work together for their humans."
+requires-python = ">=3.11"
+dependencies = ["embody-engine[mcp]"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+embody-engine = { path = "../embody", editable = true }
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
