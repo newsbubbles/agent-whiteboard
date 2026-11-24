@@ -72,12 +72,15 @@ BAY_STEP = 8           # metres between Bay centres along the Studio's south wal
 BAY_SIZE = [7, 8]      # each Bay: 7 m wide, 8 m deep, its door in the middle of its north wall
 
 
-def bay_layout(k):
-    """Bay k's spot, south of the Studio: the first at x = -12, then one every BAY_STEP metres to the east."""
+def bay_layout(k, ledge_m=0):
+    """Bay k's spot, south of the Studio: the first at x = -12, then one every BAY_STEP metres to the east.
+    A Bay with a ledge outside its south window (state ledge_m) reaches that many metres further south."""
     x = -12 + BAY_STEP * (k - 1)
-    return {"at": [x, -10, 0], "size": list(BAY_SIZE), "floor": 0, "ceiling": 3.2,
-            "note": "a small room off the Studio's south wall, its door in the middle of its north wall",
-            "landmarks": {"the door": {"at": [x, -6.2, 0], "radius": 0.6}}}
+    note = "a small room off the Studio's south wall, its door in the middle of its north wall"
+    if ledge_m:
+        note += f", with a {ledge_m} m ledge outside its south window"
+    return {"at": [x, -10 - ledge_m / 2, 0], "size": [BAY_SIZE[0], BAY_SIZE[1] + ledge_m], "floor": 0, "ceiling": 3.2,
+            "note": note, "landmarks": {"the door": {"at": [x, -6.2, 0], "radius": 0.6}}}
 
 
 def lay_out(s):
@@ -87,7 +90,7 @@ def lay_out(s):
         places.append({"entity": name, **lay})
     bays = sorted((e for e in s.find(type="bay", limit=100)), key=lambda e: int(e["id"].lstrip("e")))
     for k, b in enumerate(bays, 1):
-        places.append({"entity": b["id"], **bay_layout(k)})
+        places.append({"entity": b["id"], **bay_layout(k, (b.get("state") or {}).get("ledge_m") or 0)})
     s.layout(frame={"units": "m", "note": "The Whiteboard: the Studio, with its Bays off the south wall"},
              placements=places)
 
