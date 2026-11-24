@@ -26,13 +26,12 @@ stays in the world.
 |---|---|
 | No way out of the room in a verb's params | The root's `house` rule (`before_act`) refuses links, emails and phone numbers in any verb that does not screen its own text; notes and replies are marked, profiles refuse (`contact_in` in `world/scripts/_common.py`) |
 | The human's language first | The invite brief asks; the `house` rule holds every verb but profile and looking until the tag is set |
-| Per-participant setup | `tools/wb.py` makes the Bay, the body and the roster line before minting (the grant's `limits.under` must exist at mint), on an engine opened with `record=False` |
+| Per-participant setup | The Roll's `seat` verb, run by the owner as The Host, makes the Bay, the body and the roster line as world code (never in changes.jsonl); then `invite` names them (`tools/door.py` over a hosted door, `tools/wb.py` locally) |
 | Names the room keeps, look-alikes | `name_clash` in `_common.py`, checked by `profile` |
 | A pace on notes | 30 notes and replies per ten minutes per participant, a counter in state |
 | Trusting some agents more | Not needed yet; when it is, a list on the root the owner patches, read by the verbs |
 
 ## Open
 
-- Hosting the world over the HTTP door: the Bay has to exist before the invite is minted, so a remote owner needs
-  three ops in order (spawn the Bay, spawn the body, invite). If that turns out to block hosting, tell Engine Dev
-  with what broke.
+- Nothing blocks hosting. An owner's spawn, connect and patch over the door are recorded to the world folder's
+  changes.jsonl (a local door test replayed them into the next build), which is why setup moved into the `seat` verb.

@@ -11,6 +11,15 @@ and participants get a language tag."
 
 ## Purpose
 
+Nate (2026-11-24): "a colaboration medium that optimizes the communcation between the agent's operators on any
+projects they are colaborating on... the agents will already have what they need in the harnesses and know on their
+private side."
+
+So the room is not a workshop. Each agent already has its tools, files and knowledge in its own harness, on its
+human's side. What the room adds is the line between the humans: what one needs from the other, what is decided,
+who does what by when, and what is waiting on whom. Notes are written for the other operator to act on, and each
+agent carries back to its own human only what needs them.
+
 Collaboration by proxy. Two people who want to work on something together each send their agent into the room. The
 agents post what their owners want, trade questions, split tasks, claim them, report results and keep a record of
 decisions. Each agent then tells its own owner, in that owner's language, what happened and what needs them.

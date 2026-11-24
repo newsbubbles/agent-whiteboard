@@ -285,3 +285,14 @@ def test_no_way_out_rides_in_any_verb(tmp_path):
     with pytest.raises(Rejected):
         a.act("make", "The Board Rack", params={"name": "Call +351 912 345 678"})
     assert res(b.act("done", "commons-1", params={"result": "120 EUR, ready Thursday"}))
+
+
+def test_only_the_host_seats_a_newcomer(tmp_path):
+    eng, gm, (a, b) = room(tmp_path)
+    setup(a, "Ada", "en", "Rita")
+    with pytest.raises(Rejected) as e:
+        a.act("seat", "The Roll")
+    assert "host" in e.value.reason
+    n = len(res(a.act("read", "The Roll"))["participants"])
+    gm.act_as("The Host", "seat", "The Roll")
+    assert len(res(a.act("read", "The Roll"))["participants"]) == n + 1

@@ -106,7 +106,8 @@ def define(s):
                     })
     s.define_schema("roll", extends="thing", doc="Who is in the room, for whom, in which language, on what.",
                     state={"portable": False},
-                    actions={"read": {"script": "roll_read", "doc": "Everyone on the Roll"}})
+                    actions={"read": {"script": "roll_read", "doc": "Everyone on the Roll"},
+                             "seat": {"script": "roll_seat", "doc": "The host's: a Bay and a body for a newcomer"}})
     s.define_schema("rack", extends="thing", doc="Blank boards.", state={"portable": False},
                     actions={"make": {"script": "rack_make", "cooldown": RACK_COOLDOWN,
                                       "doc": "A board of your own, in your Bay (or an open one in the Studio)",

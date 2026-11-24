@@ -10,6 +10,8 @@ boards, takes tasks, and can press a helper seat once an hour. DESIGN.md has the
   workspace as `worlds/whiteboard`.
 - `tools/wb.py`: the run workspace and the host's invite (a Bay, a body, a builder grant).
 - `tools/run.py`: a local copy with its own database under `.run/` (never the engine's `embody.db`).
+- `tools/door.py`: the owner's hands on a hosted copy over its HTTP door: `check`, and `invite guest-1` (a Bay, a
+  body, the roster line and a limited author grant; the paste goes to `.run/invites/`, never to the screen).
 - `tools/demo.py`: three scripted agents over the HTTP door, transcript to `notes/`.
 - `tests/`: `timeout 180 uv run pytest -q`.
 
