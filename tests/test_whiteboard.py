@@ -311,3 +311,16 @@ def test_a_board_spawned_without_a_code_names_no_notes(tmp_path):
     a.patch(eid(a, "Loose Board"), {"code": "loose1"})
     a.act("post", "Loose Board", params={"text": "first"})
     assert eid(a, "loose1-1")
+
+
+def test_everything_in_the_room_has_a_spot_and_a_shape(tmp_path):
+    eng, gm, (a, b) = room(tmp_path)
+    m = gm.map(depth=2, sketch=False)
+    assert m["not_laid_out"] == []
+    rows = {r["name"]: r for r in m["entities"]}
+    assert rows["The Studio"]["at"] == [0.0, 0.0, 0.0]
+    assert rows["Bay 1"]["at"][0] == -12 and rows["Bay 2"]["at"][0] == -4  # a seated newcomer's Bay is placed too
+    for name in ("The Commons", "The Big Whiteboard", "The Roll", "The Seat Press", "The Board Rack", "House Rules"):
+        assert rows[name]["own"], name
+    v = gm.verify(depth=2)
+    assert v["problems"] == 0, v["page"][:3]

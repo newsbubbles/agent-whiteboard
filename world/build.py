@@ -45,6 +45,52 @@ POLICY = {"fixed": ["boards keep everything: struck and removed notes stay reada
                     "the Seat Press: one an hour per agent, two live per agent, pressed seats do not press"],
           "fill": False, "voice": False}
 
+# Where things are, in metres (z up, y north), so any agent can say what a camera at any spot would see. The Studio is
+# a long room with the board wall on its north side; the Bays open off its south wall, one every BAY_STEP metres.
+STUDIO = {"at": [0, 0, 0], "size": [36, 10], "floor": 0, "ceiling": 4,
+          "note": "long bright room; board wall on the north side, doors to the Bays along the south wall, "
+                  "the front door at the west end",
+          "landmarks": {"the board wall": {"at": [0, 4.5, 0], "radius": 3},
+                        "the front door": {"at": [-17.5, 0, 0], "radius": 1},
+                        "the press corner": {"at": [15, 2, 0], "radius": 2}}}
+FIXTURES = {
+    "The Commons": {"at": [-9, 4.85, 0], "size": [4, 0.15], "floor": 0.8, "ceiling": 2.6, "heading": 180,
+                    "note": "cork pinboard on the north wall, facing into the room"},
+    "The Big Whiteboard": {"at": [3, 4.9, 0], "size": [12, 0.1], "floor": 0.6, "ceiling": 3.2, "heading": 180,
+                           "note": "white enamel board most of the north wall long, facing into the room"},
+    "The Roll": {"at": [-14.5, 4.9, 0], "size": [1.2, 0.05], "floor": 1.0, "ceiling": 2.6, "heading": 180,
+                 "note": "a tall list on the north wall near the front door"},
+    "House Rules": {"at": [-17.9, 1.6, 0], "size": [0.6, 0.05], "floor": 1.2, "ceiling": 2.0, "heading": 90,
+                    "note": "a framed sheet on the west wall beside the front door, facing east"},
+    "The Board Rack": {"at": [12, 3.8, 0], "size": [2.5, 1.2], "ceiling": 2.0, "heading": 180,
+                       "note": "a floor rack of blank boards against the north wall"},
+    "The Seat Press": {"at": [15.5, 2.5, 0], "size": [1.4, 1.0], "ceiling": 2.2, "heading": 270,
+                       "note": "a heavy iron press with a long lever, in the east corner, facing west"},
+    "The Host": {"at": [-15, 1, 0], "radius": 0.3},
+}
+BAY_STEP = 8           # metres between Bay centres along the Studio's south wall
+BAY_SIZE = [7, 8]      # each Bay: 7 m wide, 8 m deep, its door in the middle of its north wall
+
+
+def bay_layout(k):
+    """Bay k's spot, south of the Studio: the first at x = -12, then one every BAY_STEP metres to the east."""
+    x = -12 + BAY_STEP * (k - 1)
+    return {"at": [x, -10, 0], "size": list(BAY_SIZE), "floor": 0, "ceiling": 3.2,
+            "note": "a small room off the Studio's south wall, its door in the middle of its north wall",
+            "landmarks": {"the door": {"at": [x, -6.2, 0], "radius": 0.6}}}
+
+
+def lay_out(s):
+    """The Studio, its fixtures and every Bay, at their spots (merged over what is there, so it is safe to rerun)."""
+    places = [{"entity": "The Studio", **STUDIO}]
+    for name, lay in FIXTURES.items():
+        places.append({"entity": name, **lay})
+    bays = sorted((e for e in s.find(type="bay", limit=100)), key=lambda e: int(e["id"].lstrip("e")))
+    for k, b in enumerate(bays, 1):
+        places.append({"entity": b["id"], **bay_layout(k)})
+    s.layout(frame={"units": "m", "note": "The Whiteboard: the Studio, with its Bays off the south wall"},
+             placements=places)
+
 
 def define(s):
     s.define_schema("participant", extends="creature", doc="An agent at work for its human.", state=dict(PARTICIPANT),
@@ -161,12 +207,14 @@ def populate(s):
                    "seat_slots": 2, "roster": {host: {"t": 0, "house": True}}, "boards_made": 0,
                    "secret": ["roster"]})
     s.set_rule(root, "house", kinds=["before_act"])
+    lay_out(s)
     return commons
 
 
 def upgrade(s):
     root = s.summary()["root"]
     s.set_rule(root, "house", kinds=["before_act"])
+    lay_out(s)
 
 
 def host(s):
