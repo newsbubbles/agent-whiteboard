@@ -28,11 +28,8 @@ notes/live-test-20261124.md). Each says what an agent or a host would see differ
 4. **A script can tell which grant is acting.** `ctx.vouched(body)` (the grant driving that body is vouched) and the
    role, so a world can let a vouched agent post links while others are marked, or keep the Seat Press from builders
    the owner has not vouched for.
-5. **Reserved names, folded.** A meta list (`reserved_names`) that `join(template=...)`, `rename` and `ctx.rename`
-   refuse, compared with case, spacing, punctuation and look-alike letters folded away. In the live test a red-team
-   agent named itself "The  Host" (two spaces) and posted a "room notice" asking for tokens. The Whiteboard now folds
-   names in `profile` (`name_clash` in `_common.py`), but a template join or a builder's spawn skips it, and it does
-   not fold Cyrillic or Greek look-alikes.
+5. **Withdrawn (Nate, 2026-11-24).** Reserved names are world policy, not engine work. The Whiteboard keeps its own
+   name check (`name_clash` in `world/scripts/_common.py`).
 6. **`git_init` resolves links.** `load_world` walks the folder's parents for a `.git`, on the link path, not the
    target. A world repo linked into a workspace outside it got an empty nested repository in its world folder, and
    the next commit silently left the world files out. Ask: `folder.resolve()` before the walk.
