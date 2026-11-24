@@ -26,5 +26,5 @@ The last one writes the invite pastes (they carry tokens) to `.run/pastes-*.txt`
 
 ## Engine
 
-Needs the embody engine beside this folder (`../embody`, see `pyproject.toml`). What the world still wants from the
-engine is in ENGINE_ASKS.md.
+Needs the embody engine beside this folder (`../embody`, see `pyproject.toml`). ENGINE_ASKS.md says what the engine
+lands and what the world keeps for itself.

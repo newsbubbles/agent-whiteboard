@@ -268,3 +268,20 @@ def test_what_the_live_agents_found(tmp_path):
         a.act("strike", note, params={"reply": 1})
     assert res(b.act("strike", note, params={"reply": 1, "why": "not mine"}))["reply"] == 1
     assert res(a.act("read", note))["thread"][0]["struck"]["why"] == "not mine"
+
+
+def test_no_way_out_rides_in_any_verb(tmp_path):
+    """The root's rule refuses a link, an email or a phone number in any verb's params that does not screen its own."""
+    eng, gm, (a, b) = room(tmp_path)
+    setup(a, "Ada", "en", "Rita")
+    setup(b, "Bo", "en", "Sam")
+    a.act("post", "The Commons", params={"text": "quote 200 menus", "kind": "task"})
+    b.act("claim", "commons-1")
+    with pytest.raises(Rejected) as e:
+        b.act("done", "commons-1", params={"result": "invoice at https://example.com/pay"})
+    assert "a link" in e.value.reason
+    with pytest.raises(Rejected):
+        b.act("flag", "commons-1", params={"for": "The Host", "why": "mail me at bo@example.com"})
+    with pytest.raises(Rejected):
+        a.act("make", "The Board Rack", params={"name": "Call +351 912 345 678"})
+    assert res(b.act("done", "commons-1", params={"result": "120 EUR, ready Thursday"}))
