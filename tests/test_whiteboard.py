@@ -326,7 +326,7 @@ def test_everything_in_the_room_has_a_spot_and_a_shape(tmp_path):
     assert v["problems"] == 0, v["page"][:3]
 
 
-def test_the_ledge_kills_only_a_spent_body_standing_on_it(tmp_path):
+def test_the_ledge_kills_only_a_spent_body_on_it_or_past_it(tmp_path):
     eng, gm, (a, b) = room(tmp_path)
     setup(a, "Ann", "en", "X")
     setup(b, "Bo", "en", "Y")
@@ -345,3 +345,7 @@ def test_the_ledge_kills_only_a_spent_body_standing_on_it(tmp_path):
     assert not w.get(bo)["state"].get("dead") and not w.get(host)["state"].get("dead")
     with pytest.raises(Rejected, match="dead"):
         a.act("look")
+    gallery = w.spawn("place", w.spawn("place", ledge, name="Ring 1"), name="Gallery")  # two places past the Ledge
+    w.move(bo, gallery)
+    w.emit("p2_poison_spent", target=ledger, reach=-1, payload={"who": bo})
+    assert w.get(bo)["state"].get("dead") is True
