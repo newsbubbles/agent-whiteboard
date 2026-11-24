@@ -20,7 +20,8 @@ def build_module():
 
 
 def room(tmp_path, n=2):
-    eng = Engine(workspace=wb.workspace(tmp_path / "ws"))
+    # the run workspace sits inside this repo, so the engine's loader never starts a repository in world/
+    eng = Engine(workspace=wb.workspace(wb.REPO / ".run"))
     gm = eng.session("host", capabilities=[AUTHOR])
     load_world(gm, "whiteboard")
     build_module().host(gm)
