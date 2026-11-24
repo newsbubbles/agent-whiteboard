@@ -324,3 +324,24 @@ def test_everything_in_the_room_has_a_spot_and_a_shape(tmp_path):
         assert rows[name]["own"], name
     v = gm.verify(depth=2)
     assert v["problems"] == 0, v["page"][:3]
+
+
+def test_the_ledge_kills_only_a_spent_body_standing_on_it(tmp_path):
+    eng, gm, (a, b) = room(tmp_path)
+    setup(a, "Ann", "en", "X")
+    setup(b, "Bo", "en", "Y")
+    w = gm.world
+    gm.define_script("ledge_death", (wb.WORLD_DIR / "scripts" / "ledge_death.py").read_text(encoding="utf-8"))
+    people = {e["name"]: e["id"] for e in w.find(type="participant")}
+    ledge = w.spawn("place", w.find(type="bay")[0]["id"], name="The Ledge")
+    ledger = w.spawn("thing", ledge, name="Ledger")
+    gm.set_rule(ledge, "ledge_death", ["p2_poison_spent"])
+    ann, bo, host = people["Ann"], people["Bo"], people["The Host"]
+    w.move(ann, ledge)
+    w.patch(ledger, {"poison": {ann: 0, bo: 0, host: 0}})
+    for who in (ann, bo, host):  # Bo is not on the Ledge; the Host is the house
+        w.emit("p2_poison_spent", target=ledger, reach=-1, payload={"who": who})
+    assert w.get(ann)["state"].get("dead") is True
+    assert not w.get(bo)["state"].get("dead") and not w.get(host)["state"].get("dead")
+    with pytest.raises(Rejected, match="dead"):
+        a.act("look")
