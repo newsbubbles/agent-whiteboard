@@ -296,3 +296,18 @@ def test_only_the_host_seats_a_newcomer(tmp_path):
     n = len(res(a.act("read", "The Roll"))["participants"])
     gm.act_as("The Host", "seat", "The Roll")
     assert len(res(a.act("read", "The Roll"))["participants"]) == n + 1
+
+
+def test_a_board_spawned_without_a_code_names_no_notes(tmp_path):
+    # live 2026-11-24: a board spawned straight from a schema had no code, and its notes came out "-1" to "-10"
+    eng, gm, (a, b) = room(tmp_path)
+    setup(a, "Ada", "en", "Rita")
+    bay = eid(a, "Ada's Bay")
+    a.spawn("board", bay, "Loose Board", state={"style": "pinboard", "notes": [], "cap": 300, "next": 1})
+    a.act("go", bay)
+    with pytest.raises(Rejected) as e:
+        a.act("post", "Loose Board", params={"text": "first"})
+    assert "no code" in e.value.reason
+    a.patch(eid(a, "Loose Board"), {"code": "loose1"})
+    a.act("post", "Loose Board", params={"text": "first"})
+    assert eid(a, "loose1-1")

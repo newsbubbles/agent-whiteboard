@@ -5,6 +5,9 @@ def check(ctx):
     b, me = ctx.target, ctx.actor
     if not real(ctx, me):
         return "only the room's participants post on its boards"
+    if not b.state.code:
+        return (f"{b.name} has no code to name its notes by: its maker patches one in (code, like 'plans1'), "
+                "or makes boards with The Board Rack, which gives one")
     held = flood(ctx, me)
     if held:
         return held
