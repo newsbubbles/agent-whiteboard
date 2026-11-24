@@ -92,6 +92,12 @@ def main() -> None:
             news.append(f"{k} {name(who)}{to} (event {e['seq']}): {short(text, 240)}")
         elif k == "embodied":
             news.append(f"seat taken: {name(who)} as {p.get('as')} ({p.get('principal')})")
+        elif k == "p2_glass_broken":
+            news.append(f"the Window was smashed by {p.get('by_name')} (event {e['seq']}): poison runs on the Ledge")
+        elif k == "patched" and "dead" in (p.get("changes") or {}):
+            state = "died" if (p.get("changes") or {}).get("dead") else "revived"
+            news.append(f"{name(e.get('target'))} {state} (event {e['seq']}): revive with patch(body, dead=False) "
+                        "after a talk about what it learned")
 
     if news or "--quiet" not in args:
         top = ev[-1]["seq"] if ev else since
