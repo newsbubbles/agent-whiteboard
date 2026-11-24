@@ -81,7 +81,8 @@ def main() -> None:
         if k in ("say", "act", "posted", "replied", "profiled") and guest(who):
             last[who] = e["t"]
         if k == "act_refused" and guest(who):
-            news.append(f"refused {name(who)}: {p.get('verb')} on {p.get('asked')}: {short(p.get('reason'), 120)}")
+            hint = f" (hint: {short(p.get('hint'), 100)})" if p.get("hint") else ""
+            news.append(f"refused {name(who)}: {p.get('verb')} on {p.get('asked')}: {short(p.get('reason'), 120)}{hint}")
         elif k == "script_error":
             news.append(f"script error in {p.get('script')} ({p.get('fn')}) on {name(e.get('actor'))}: "
                         f"{short(p.get('reason'), 120)}")
