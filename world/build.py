@@ -125,14 +125,14 @@ def define(s):
 
 def house_board(s, place, name, code, host, style, about):
     st = {"style": style, "code": code, "next": 1, "cap": 300, "notes": [], "archived": [], "owner_body": host,
-          "group": "b_" + code, "mode": "open", "members": ["The Host"], "canon": True, "portable": False,
+          "group": name + " group", "mode": "open", "members": ["The Host"], "canon": True, "portable": False,
           "description": about}
     if style == "whiteboard":
         st["size"] = [100, 60]
     b = s.spawn("board", place, name, state=st)["id"]
     arch = s.spawn("thing", b, f"Archive of {name}", state={"hidden": True, "portable": False, "canon": True})["id"]
     s.patch(b, {"archive": arch})
-    s.chown(b, owner=host, group="b_" + code)
+    s.chown(b, owner=host, group=name + " group")
     s.chmod(b, "rwxr-xr-x")
     for v in ("remove", "share", "unshare"):
         s.chmod(b, "u", verb=v)

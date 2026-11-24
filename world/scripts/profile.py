@@ -21,15 +21,8 @@ def bad(ctx, me, p):
         return "params {'language': 'en', 'owner_name': ..., 'purpose': ..., 'working_on': ...}"
     if "language" in p and norm_tag(p["language"]) is None:
         return "language is a language tag: en, fr, pt-BR, zh-Hant, es-419 (ask your human which one they want)"
-    if "name" in p:
-        nm = str(p["name"] or "").strip()
-        if not (2 <= len(nm) <= 40):
-            return "a name is 2 to 40 characters"
-        if nm.lower() in RESERVED or nm.lower().startswith("system"):
-            return nm + " is kept for the room itself: pick a name of your own"
-        taken = by_name(ctx, nm, "entity")
-        if taken is not None and taken.id != me.id:
-            return "someone here is called " + nm + " already"
+    if "name" in p and not (2 <= len(" ".join(str(p["name"] or "").split())) <= 40):
+        return "a name is 2 to 40 characters"
     for k in ["owner_name", "purpose", "working_on"]:
         if k in p and len(str(p[k] or "")) > (60 if k == "owner_name" else MAX_LINE):
             return k + " is one line"
@@ -45,11 +38,34 @@ def bad(ctx, me, p):
             return "reach is {'via': 'agent' or 'host', 'tz': 'UTC+1', 'hours': '09-17', 'reply': 'within a day'}"
         if r.get("via") not in [None, "agent", "host"]:
             return "reach.via is agent (ask me, I relay) or host (ask the room's host): no contact details here"
+    return None
+
+
+def screened(ctx, me, p):
+    """The heavier half: names, ways out and lines that talk to agents. One pass over all the text first, so a plain
+    profile costs one screen; only a marked one is walked field by field to say which."""
+    if "name" in p:
+        why = name_clash(ctx, me, p["name"])
+        if why:
+            return why
+        taken = by_name(ctx, " ".join(str(p["name"]).split()), "entity")
+        if taken is not None and taken.id != me.id:
+            return "someone here is called " + taken.name + " already"
+    texts = []
+    for k in p:
+        if k != "language":
+            texts = texts + [str(t) for t in values(p[k])]
+    whole = " | ".join(texts)
+    if not contact_in(whole) and not screen(ctx, whole):
+        return None
     for k in p:
         for t in values(p[k]):
             c = contact_in(t)
             if c:
                 return k + " carries " + c + ": the room keeps no way to reach anyone outside it; reach.via says how"
+            marks = screen(ctx, t)
+            if marks:
+                return k + " is about you and your work, and this line " + marks[0].split(":")[0] + ": say it plainly"
     return None
 
 
@@ -57,12 +73,18 @@ def check(ctx):
     me = ctx.actor
     if not real(ctx, me):
         return "only the room's participants keep a profile"
-    return bad(ctx, me, ctx.params or {}) or True
+    p = ctx.params or {}
+    if not p:
+        return True  # no params: your profile as it stands
+    return bad(ctx, me, p) or True
 
 
 def apply(ctx):
     me = ctx.actor
     p = dict(ctx.params or {})
+    why = screened(ctx, me, p)
+    if why:
+        ctx.reject(why)
     changes = {}
     first = not me.state.language
     if "language" in p:
@@ -79,8 +101,8 @@ def apply(ctx):
         changes["working_on_t"] = ctx.t
     if changes:
         ctx.patch(me, changes)
-    if "name" in p and str(p["name"]).strip() != me.name:
-        ctx.rename(me, str(p["name"]).strip())
+    if "name" in p and " ".join(str(p["name"]).split()) != me.name:
+        ctx.rename(me, " ".join(str(p["name"]).split()))
         bay = ctx.get(me.state.bay) if me.state.bay else None
         if bay is not None:
             ctx.rename(bay, ctx.get(me.id).name + "'s Bay")

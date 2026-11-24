@@ -43,7 +43,7 @@ def apply(ctx):
     k = int(root.state.boards_made or 0) + 1
     word = "".join([c for c in nm.lower().split(" ")[0] if c.isalnum()])[:8] or "board"
     code = word + str(k)
-    group = "b_" + code
+    group = nm + " group"
     st = {"style": style, "code": code, "next": 1, "cap": 300, "notes": [], "archived": [], "owner_body": me.id,
           "group": group, "mode": mode, "members": [me.name], "canon": True, "portable": False,
           "description": clip(p.get("about") or (me.name + "'s " + style), MAX_LINE)}
